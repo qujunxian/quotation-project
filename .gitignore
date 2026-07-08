@@ -1,0 +1,9 @@
+node_modules/
+dist/
+release/
+*.db
+.DS_Store
+.idea/
+.catpaw/
+.claude/
+idea-access
