@@ -49,7 +49,8 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
     <div className="editable-cell" onClick={() => setEditing(true)}>
       {value !== '' && value !== undefined && value !== null
         ? value
-        : <span style={{ color: '#bfbfbf' }}>{placeholder}</span>}
+        : <span style={{ color: '#bfbfbf' }}>{placeholder}</span>
+      }
     </div>
   )
 }

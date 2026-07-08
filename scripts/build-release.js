@@ -33,13 +33,20 @@ fs.cpSync(distSrc, distDst, { recursive: true })
 console.log('✓ Copied dist folder')
 
 // Copy server files
-const filesToCopy = ['server.js', 'package.json', 'package-lock.json', 'sea-config.json']
+const filesToCopy = ['package.json', 'package-lock.json']
 for (const file of filesToCopy) {
   const src = path.join(rootDir, file)
   const dst = path.join(releaseDir, file)
   if (fs.existsSync(src)) {
     fs.copyFileSync(src, dst)
   }
+}
+
+// Copy server.js from src/server
+const serverSrc = path.join(rootDir, 'src/server/server.js')
+const serverDst = path.join(releaseDir, 'server.js')
+if (fs.existsSync(serverSrc)) {
+  fs.copyFileSync(serverSrc, serverDst)
 }
 console.log('✓ Copied server files')
 

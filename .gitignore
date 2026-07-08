@@ -7,3 +7,5 @@ release/
 .catpaw/
 .claude/
 idea-access
+qodana.yaml
+CLAUDE.md

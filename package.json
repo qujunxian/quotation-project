@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server.js",
+    "start": "node src/server/server.js",
     "package:prepare": "npm run build && mkdir -p release",
     "package": "npm run package:prepare && node scripts/build-release.js",
     "package:nexe": "./scripts/build-nexe.sh",

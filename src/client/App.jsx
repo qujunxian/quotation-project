@@ -45,8 +45,8 @@ function App() {
     let install = 0
     let equip = 0
     items.forEach(item => {
-      install += (parseFloat(item.qty) || 0) * (parseFloat(item.install_price) || 0)
-      equip += (parseFloat(item.qty) || 0) * (parseFloat(item.equip_price) || 0)
+      install += (parseFloat(item.qty) || 0) * (parseFloat(item.installPrice) || 0)
+      equip += (parseFloat(item.qty) || 0) * (parseFloat(item.equipPrice) || 0)
     })
     const total = install + equip
     const taxAmount = total * (taxRate / 100)
@@ -79,7 +79,7 @@ function App() {
       setProjectName(data.name || '')
       setProjectDate(data.date || '')
       setQuoter(data.quoter || '')
-      setTaxRate(data.tax_rate || 6)
+      setTaxRate(data.taxRate || 6)
       setItems(data.items || [])
       setView('edit')
     } catch (err) {
@@ -100,15 +100,15 @@ function App() {
       name: projectName,
       date: projectDate,
       quoter: quoter,
-      tax_rate: taxRate,
+      taxRate: taxRate,
       items: items.map((item, index) => ({
-        sort_order: index,
+        sortOrder: index,
         name: item.name || '',
         model: item.model || '',
         unit: item.unit || '',
         qty: parseFloat(item.qty) || 0,
-        install_price: parseFloat(item.install_price) || 0,
-        equip_price: parseFloat(item.equip_price) || 0,
+        installPrice: parseFloat(item.installPrice) || 0,
+        equipPrice: parseFloat(item.equipPrice) || 0,
         remark: item.remark || ''
       }))
     }
@@ -174,8 +174,8 @@ function App() {
       model: '',
       unit: '台',
       qty: 1,
-      install_price: 0,
-      equip_price: 0,
+      installPrice: 0,
+      equipPrice: 0,
       remark: ''
     }])
     setSaveStatus('未保存')
@@ -220,15 +220,15 @@ function App() {
 
     items.forEach((item, i) => {
       const qty = parseFloat(item.qty) || 0
-      const installTotal = qty * (parseFloat(item.install_price) || 0)
-      const equipTotal = qty * (parseFloat(item.equip_price) || 0)
+      const installTotal = qty * (parseFloat(item.installPrice) || 0)
+      const equipTotal = qty * (parseFloat(item.equipPrice) || 0)
       installSub += installTotal
       equipSub += equipTotal
 
       aoa.push([
         i + 1, item.name, item.model, item.unit, qty,
-        item.install_price || 0, installTotal,
-        item.equip_price || 0, equipTotal, item.remark
+        item.installPrice || 0, installTotal,
+        item.equipPrice || 0, equipTotal, item.remark
       ])
     })
 
@@ -326,13 +326,13 @@ function App() {
     },
     {
       title: '安装单价',
-      dataIndex: 'install_price',
+      dataIndex: 'installPrice',
       width: 100,
       align: 'right',
       render: (text, record, index) => (
         <EditableCell
           value={text}
-          onChange={(val) => updateItem(index, 'install_price', val)}
+          onChange={(val) => updateItem(index, 'installPrice', val)}
           type="price"
         />
       )
@@ -343,19 +343,19 @@ function App() {
       width: 100,
       align: 'right',
       render: (_, record) => {
-        const total = (parseFloat(record.qty) || 0) * (parseFloat(record.install_price) || 0)
+        const total = (parseFloat(record.qty) || 0) * (parseFloat(record.installPrice) || 0)
         return <Text strong>{total.toFixed(2)}</Text>
       }
     },
     {
       title: '设备单价',
-      dataIndex: 'equip_price',
+      dataIndex: 'equipPrice',
       width: 100,
       align: 'right',
       render: (text, record, index) => (
         <EditableCell
           value={text}
-          onChange={(val) => updateItem(index, 'equip_price', val)}
+          onChange={(val) => updateItem(index, 'equipPrice', val)}
           type="price"
         />
       )
@@ -366,7 +366,7 @@ function App() {
       width: 100,
       align: 'right',
       render: (_, record) => {
-        const total = (parseFloat(record.qty) || 0) * (parseFloat(record.equip_price) || 0)
+        const total = (parseFloat(record.qty) || 0) * (parseFloat(record.equipPrice) || 0)
         return <Text strong>{total.toFixed(2)}</Text>
       }
     },
@@ -452,8 +452,8 @@ function App() {
                       title="确定删除此报价单？"
                       onConfirm={() => deleteQuotation(item.id)}
                     >
-                      <Button 
-                        danger 
+                      <Button
+                        danger
                         icon={<DeleteOutlined />}
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -467,17 +467,17 @@ function App() {
                     title={
                       <Space>
                         <Text strong>{item.name || '未命名报价单'}</Text>
-                        <Tag color="blue">税点 {item.tax_rate}%</Tag>
+                        <Tag color="blue">税点 {item.taxRate}%</Tag>
                       </Space>
                     }
                     description={
                       <Space>
-                        <Text type="secondary">日期: {item.date || '-'}</Text>
+                        <Text type="secondary">日期：{item.date || '-'}</Text>
                         <Divider type="vertical" />
-                        <Text type="secondary">报价人: {item.quoter || '-'}</Text>
+                        <Text type="secondary">报价人：{item.quoter || '-'}</Text>
                         <Divider type="vertical" />
                         <Text type="secondary">
-                          更新: {new Date(item.updated_at).toLocaleString()}
+                          更新：{new Date(item.updatedAt).toLocaleString()}
                         </Text>
                       </Space>
                     }
@@ -515,7 +515,6 @@ function App() {
           </Button>
           <Popconfirm
             title="确定要清空所有项目吗？"
-            description="此操作不可撤销"
             onConfirm={clearAll}
           >
             <Button icon={<ClearOutlined />} danger>
@@ -612,7 +611,7 @@ function App() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               <tr className="summary-row subtotal">
-                <td colSpan="6" style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
+                <td colSpan={6} style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong>小计</Text>
                 </td>
                 <td style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
@@ -622,25 +621,25 @@ function App() {
                 <td style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong type="primary">{equipSubtotal.toFixed(2)}</Text>
                 </td>
-                <td colSpan="2" style={{ border: '1px solid #f0f0f0' }}></td>
+                <td colSpan={2} style={{ border: '1px solid #f0f0f0' }}></td>
               </tr>
               <tr className="summary-row tax">
-                <td colSpan="6" style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
+                <td colSpan={6} style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong>税点 ({taxRate}%)</Text>
                 </td>
-                <td colSpan="3" style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
+                <td colSpan={3} style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong type="warning">{tax.toFixed(2)}</Text>
                 </td>
-                <td colSpan="2" style={{ border: '1px solid #f0f0f0' }}></td>
+                <td colSpan={2} style={{ border: '1px solid #f0f0f0' }}></td>
               </tr>
               <tr className="summary-row total">
-                <td colSpan="6" style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
+                <td colSpan={6} style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong style={{ fontSize: 16 }}>总计</Text>
                 </td>
-                <td colSpan="3" style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
+                <td colSpan={3} style={{ textAlign: 'right', padding: '12px 24px', border: '1px solid #f0f0f0' }}>
                   <Text strong type="success" style={{ fontSize: 16 }}>¥ {grandTotal.toFixed(2)}</Text>
                 </td>
-                <td colSpan="2" style={{ border: '1px solid #f0f0f0' }}></td>
+                <td colSpan={2} style={{ border: '1px solid #f0f0f0' }}></td>
               </tr>
             </tbody>
           </table>
