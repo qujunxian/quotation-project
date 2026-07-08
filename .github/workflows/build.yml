@@ -1,0 +1,179 @@
+name: Build Executables
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: webapp/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./webapp
+      run: npm ci
+    
+    - name: Build frontend
+      working-directory: ./webapp
+      run: npm run build
+    
+    - name: Build executable (macOS x64)
+      working-directory: ./webapp
+      run: npx nexe server.js -o release/quotation-system-macos-x64 --build --target macos-x64-18.15.0
+    
+    - name: Build executable (macOS arm64)
+      working-directory: ./webapp
+      run: npx nexe server.js -o release/quotation-system-macos-arm64 --build --target macos-arm64-18.15.0
+    
+    - name: Copy resources
+      working-directory: ./webapp
+      run: |
+        cp -r dist release/
+        cp package.json release/
+        cp package-lock.json release/
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-builds
+        path: webapp/release/
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: webapp/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      working-directory: ./webapp
+      run: npm ci
+    
+    - name: Build frontend
+      working-directory: ./webapp
+      run: npm run build
+    
+    - name: Build executable (Windows)
+      working-directory: ./webapp
+      run: npx nexe server.js -o release/quotation-system-win.exe --build --target windows-x64-18.15.0
+    
+    - name: Copy resources
+      working-directory: ./webapp
+      run: |
+        xcopy /E /I dist release\dist
+        copy package.json release\
+        copy package-lock.json release\
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: webapp/release/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: webapp/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./webapp
+      run: npm ci
+    
+    - name: Build frontend
+      working-directory: ./webapp
+      run: npm run build
+    
+    - name: Build executable (Linux)
+      working-directory: ./webapp
+      run: npx nexe server.js -o release/quotation-system-linux --build --target linux-x64-18.15.0
+    
+    - name: Copy resources
+      working-directory: ./webapp
+      run: |
+        cp -r dist release/
+        cp package.json release/
+        cp package-lock.json release/
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-build
+        path: webapp/release/
+
+  release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: Create Release Archives
+      run: |
+        mkdir -p releases
+        
+        # macOS x64
+        cd artifacts/macos-builds
+        zip -r ../../releases/quotation-system-macos-x64.zip .
+        cd ../..
+        
+        # macOS arm64
+        cd artifacts/macos-builds
+        cp quotation-system-macos-arm64 .
+        zip -r ../../releases/quotation-system-macos-arm64.zip .
+        cd ../..
+        
+        # Windows
+        cd artifacts/windows-build
+        zip -r ../../releases/quotation-system-windows.zip .
+        cd ../..
+        
+        # Linux
+        cd artifacts/linux-build
+        zip -r ../../releases/quotation-system-linux.zip .
+        cd ../..
+    
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: releases/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload artifacts summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: all-releases
+        path: releases/
